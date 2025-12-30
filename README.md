@@ -1,4 +1,4 @@
 # Sphere
 - here my website's source code located;)
 
-<h2 link="https://qerr0r.github.io/sphere/">Check Here</h2>
+<a href="https://qerr0r.github.io/sphere/"><h2>Check Here</h2></a>
