@@ -5,13 +5,11 @@
 }
 
 .loading-container {
-    text-align: center;
-}
-
-.loading-container img {
-    display: block;
-    margin: 0 auto 20px;
-    max-width: 400px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;    
 }
 
 </style>
@@ -23,7 +21,7 @@
     <body>
         <div class="loading-container">
             <img src="images/gif/rem-rezero.gif" width=150px>
-            <h2>Loading</h2>
+            <h2>Loading...</h2>
         </div>
     </body>
 </html>
