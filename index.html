@@ -2,7 +2,14 @@
 *{
     background-color: #000000;
     color: #ffffff;
-    text-align: center;
+}
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
 }
 </style>
 
@@ -11,6 +18,9 @@
         <title>Sphere</title>
     </head>
     <body>
-        <img src="images/gif/rem-rezero.gif" width=150px>
+        <div class="loading-container">
+            <img src="images/gif/rem-rezero.gif" width=150px>
+            <h2>Loading</h2>
+        </div>
     </body>
 </html>
