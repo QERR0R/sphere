@@ -258,12 +258,12 @@
                                 bufferIndicator.classList.remove('visible');
                                 
                                 if (!mainVideo.muted) {
-                                    mainVideo.muted = false;
+                                    mainVideo.muted = true;
                                 }
                             }).catch(error => {
                                 console.log('Autoplay prevented, waiting for user interaction');
                                 canAutoPlay = false;
-                                mainVideo.muted = false;
+                                mainVideo.muted = true;
                             });
                         }
                     }, 300);
