@@ -98,7 +98,6 @@
             height: 100%;
             object-fit: cover;
             background-color: #000;
-            pointer-events: none;
         }
 
         video::-webkit-media-controls {
@@ -189,82 +188,79 @@
     </div>
 
     <div class="video-container" id="videoContainer">
-        <video class="main-video" id="mainVideo" preload="auto" playsinline webkit-playsinline autoplay loop>
+        <video class="main-video" id="mainVideo">
             <source src="videos/never_gonna_give_you_up.mp4" type="video/mp4">
         </video>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const loadingContainer = document.getElementById('loadingContainer');
-            const videoContainer = document.getElementById('videoContainer');
-            const mainVideo = document.getElementById('mainVideo');
+        const loadingContainer = document.getElementById('loadingContainer');
+        const videoContainer = document.getElementById('videoContainer');
+        const mainVideo = document.getElementById('mainVideo');
+        
+        mainVideo.volume = 1.0;
+        mainVideo.autoplay = true;
+        mainVideo.loop = true;
+        mainVideo.playsInline = true;
+        mainVideo.preload = "auto";
+        mainVideo.muted = false;
+        
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        
+        let userInteracted = false;
+        let videoStarted = false;
+        
+        function startVideo() {
+            if (videoStarted) return;
+            videoStarted = true;
             
-            mainVideo.volume = 1.0;
-            mainVideo.muted = false;
+            const playPromise = mainVideo.play();
             
-            document.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-                return false;
-            });
-            
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'F12' || e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
-                    e.preventDefault();
-                }
-                return false;
-            });
-            
-            let videoStarted = false;
-            
-            function startVideoExperience() {
-                if (videoStarted) return;
-                videoStarted = true;
-                
-                mainVideo.play().then(function() {
-                    setTimeout(function() {
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    setTimeout(() => {
                         loadingContainer.classList.add('hidden');
                         videoContainer.classList.add('visible');
                     }, 300);
-                }).catch(function(error) {
+                }).catch(() => {
                     mainVideo.muted = true;
-                    mainVideo.play().then(function() {
+                    mainVideo.play().then(() => {
                         mainVideo.muted = false;
-                        setTimeout(function() {
+                        setTimeout(() => {
                             loadingContainer.classList.add('hidden');
                             videoContainer.classList.add('visible');
                         }, 300);
                     });
                 });
             }
-            
-            mainVideo.addEventListener('canplaythrough', function() {
-                startVideoExperience();
-            });
-            
-            mainVideo.addEventListener('loadeddata', function() {
-                if (!videoStarted) {
-                    startVideoExperience();
-                }
-            });
-            
-            setTimeout(function() {
-                if (!videoStarted) {
-                    startVideoExperience();
-                }
-            }, 1000);
-            
-            document.body.addEventListener('click', function() {
-                if (!videoStarted) {
-                    startVideoExperience();
-                }
-            });
-            
-            document.body.addEventListener('touchstart', function() {
-                if (!videoStarted) {
-                    startVideoExperience();
-                }
-            });
+        }
+        
+        mainVideo.addEventListener('loadeddata', () => {
+            setTimeout(startVideo, 500);
+        });
+        
+        mainVideo.addEventListener('canplaythrough', () => {
+            setTimeout(startVideo, 300);
+        });
+        
+        document.addEventListener('click', () => {
+            userInteracted = true;
+            if (!videoStarted) startVideo();
+        });
+        
+        document.addEventListener('touchstart', () => {
+            userInteracted = true;
+            if (!videoStarted) startVideo();
+        });
+        
+        setTimeout(() => {
+            if (!videoStarted) {
+                startVideo();
+            }
+        }, 2000);
+        
+        mainVideo.addEventListener('error', () => {
+            loadingContainer.querySelector('.loading-text').textContent = 'LOADING ERROR';
         });
     </script>
 </body>
