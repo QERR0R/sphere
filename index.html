@@ -18,6 +18,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             min-height: 100vh;
             overflow: hidden;
+            cursor: pointer;
         }
 
         .loading-container {
@@ -62,6 +63,85 @@
         @keyframes fadeInOut {
             0%, 100% { opacity: 0.7; }
             50% { opacity: 1; }
+        }
+
+        /* Start Screen Styles */
+        .start-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 950;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
+        }
+
+        .start-screen.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .start-gif {
+            width: 200px;
+            height: 200px;
+            object-fit: contain;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.2));
+            animation: startPulse 2.5s ease-in-out infinite;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .start-gif:hover {
+            transform: scale(1.05);
+        }
+
+        @keyframes startPulse {
+            0%, 100% { 
+                transform: scale(1); 
+                filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.2));
+            }
+            50% { 
+                transform: scale(1.08); 
+                filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.3));
+            }
+        }
+
+        .start-text {
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 4px;
+            margin-bottom: 15px;
+            opacity: 0.9;
+            animation: textGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes textGlow {
+            0%, 100% { 
+                opacity: 0.9;
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            }
+            50% { 
+                opacity: 1;
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            }
+        }
+
+        .hint-text {
+            font-size: 1rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            opacity: 0.6;
+            margin-top: 10px;
+            font-style: italic;
         }
 
         .video-container {
@@ -126,6 +206,20 @@
                 letter-spacing: 2px;
             }
             
+            .start-gif {
+                width: 160px;
+                height: 160px;
+            }
+            
+            .start-text {
+                font-size: 1.3rem;
+                letter-spacing: 3px;
+            }
+            
+            .hint-text {
+                font-size: 0.9rem;
+            }
+            
             .buffer-indicator {
                 width: 150px;
                 bottom: 20px;
@@ -143,13 +237,26 @@
                 letter-spacing: 1px;
             }
             
+            .start-gif {
+                width: 140px;
+                height: 140px;
+            }
+            
+            .start-text {
+                font-size: 1.1rem;
+                letter-spacing: 2px;
+            }
+            
+            .hint-text {
+                font-size: 0.8rem;
+            }
+            
             .buffer-indicator {
                 width: 120px;
                 bottom: 15px;
             }
         }
 
-        /* Video controls that appear on hover */
         .video-controls {
             position: fixed;
             bottom: 20px;
@@ -181,12 +288,41 @@
         .control-btn:hover {
             background: rgba(255, 255, 255, 0.2);
         }
+
+        .video-progress {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 950;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .video-container:hover .video-progress {
+            opacity: 1;
+        }
+
+        .video-progress-fill {
+            height: 100%;
+            background: #ffffff;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
     </style>
 </head>
 <body>
     <div class="loading-container" id="loadingContainer">
-        <img src="images/gif/rem-rezero.gif" alt="Loading" class="loading-gif">
+        <img src="images/gif/loading.gif" alt="Loading" class="loading-gif">
         <div class="loading-text">LOADING</div>
+    </div>
+
+    <div class="start-screen" id="startScreen">
+        <img src="images/gif/click.gif" alt="Click to Start" class="start-gif" id="startGif">
+        <div class="start-text">CLICK TO START</div>
+        <div class="hint-text">Turn up your volume for the best experience</div>
     </div>
 
     <div class="buffer-indicator" id="bufferIndicator">
@@ -194,29 +330,39 @@
     </div>
 
     <div class="video-container" id="videoContainer">
-        <video class="main-video" id="mainVideo" preload="auto" playsinline webkit-playsinline muted>
+        <video class="main-video" id="mainVideo" preload="auto" playsinline webkit-playsinline>
             <source src="video/never_gonna_give_you_up.mp4" type="video/mp4">
             Your browser does not support HTML5 video.
         </video>
         
+        <div class="video-progress" id="videoProgress">
+            <div class="video-progress-fill" id="videoProgressFill"></div>
+        </div>
+        
         <div class="video-controls">
             <button class="control-btn" id="playBtn">▶ PLAY</button>
             <button class="control-btn" id="muteBtn">🔊 UNMUTE</button>
+            <button class="control-btn" id="fullscreenBtn">⛶ FULLSCREEN</button>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const loadingContainer = document.getElementById('loadingContainer');
+            const startScreen = document.getElementById('startScreen');
             const videoContainer = document.getElementById('videoContainer');
             const mainVideo = document.getElementById('mainVideo');
             const bufferIndicator = document.getElementById('bufferIndicator');
             const bufferFill = document.getElementById('bufferFill');
+            const startGif = document.getElementById('startGif');
             const playBtn = document.getElementById('playBtn');
             const muteBtn = document.getElementById('muteBtn');
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            const videoProgress = document.getElementById('videoProgress');
+            const videoProgressFill = document.getElementById('videoProgressFill');
             
             let videoReady = false;
-            let canAutoPlay = false;
+            let userStarted = false;
             
             mainVideo.preload = 'auto';
             mainVideo.load();
@@ -232,7 +378,7 @@
                         const percentBuffered = (bufferedEnd / duration) * 100;
                         bufferFill.style.width = `${percentBuffered}%`;
                         
-                        if (!videoReady && (percentBuffered >= 10 || bufferedEnd >= 5)) {
+                        if (!videoReady && (percentBuffered >= 30 || bufferedEnd >= 8)) {
                             prepareVideoPlayback();
                         }
                     }
@@ -248,31 +394,47 @@
                     loadingContainer.classList.add('hidden');
                     
                     setTimeout(() => {
-                        videoContainer.classList.add('visible');
-                        
-                        const playPromise = mainVideo.play();
-                        
-                        if (playPromise !== undefined) {
-                            playPromise.then(() => {
-                                canAutoPlay = true;
-                                bufferIndicator.classList.remove('visible');
-                                
-                                if (!mainVideo.muted) {
-                                    mainVideo.muted = true;
-                                }
-                            }).catch(error => {
-                                console.log('Autoplay prevented, waiting for user interaction');
-                                canAutoPlay = false;
-                                mainVideo.muted = true;
-                            });
-                        }
-                    }, 300);
+                        startScreen.classList.add('visible');
+                        bufferIndicator.classList.remove('visible');
+                    }, 400);
                 }, 500);
             }
+            
+            function startVideoPlayback() {
+                if (userStarted) return;
+                
+                userStarted = true;
+                
+                startScreen.classList.remove('visible');
+                
+                setTimeout(() => {
+                    videoContainer.classList.add('visible');
+                    
+                    mainVideo.play().then(() => {
+                        console.log('Video playback started successfully');
+                    }).catch(error => {
+                        console.error('Error playing video:', error);
+                        videoContainer.style.opacity = '1';
+                    });
+                }, 300);
+            }
+            
+            startScreen.addEventListener('click', startVideoPlayback);
+            
+            document.addEventListener('keydown', function(e) {
+                if (!userStarted && startScreen.classList.contains('visible')) {
+                    if (e.code === 'Space' || e.code === 'Enter') {
+                        e.preventDefault();
+                        startVideoPlayback();
+                    }
+                }
+            });
             
             mainVideo.addEventListener('error', function() {
                 console.error('Video loading error:', mainVideo.error);
                 loadingContainer.querySelector('.loading-text').textContent = 'LOADING ERROR';
+                startScreen.querySelector('.start-text').textContent = 'LOADING ERROR';
+                startScreen.querySelector('.hint-text').textContent = 'Please refresh the page';
             });
             
             mainVideo.addEventListener('canplaythrough', function() {
@@ -287,7 +449,9 @@
                 }
             }, 3000);
             
-            playBtn.addEventListener('click', function() {
+            playBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
                 if (mainVideo.paused) {
                     mainVideo.play();
                     playBtn.textContent = '⏸ PAUSE';
@@ -297,20 +461,47 @@
                 }
             });
             
-            muteBtn.addEventListener('click', function() {
+            muteBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
                 mainVideo.muted = !mainVideo.muted;
                 muteBtn.textContent = mainVideo.muted ? '🔇 MUTED' : '🔊 UNMUTE';
             });
             
+            fullscreenBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                if (!document.fullscreenElement) {
+                    if (videoContainer.requestFullscreen) {
+                        videoContainer.requestFullscreen();
+                    } else if (videoContainer.webkitRequestFullscreen) {
+                        videoContainer.webkitRequestFullscreen();
+                    } else if (videoContainer.msRequestFullscreen) {
+                        videoContainer.msRequestFullscreen();
+                    }
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    } else if (document.msExitFullscreen) {
+                        document.msExitFullscreen();
+                    }
+                }
+            });
+            
             mainVideo.addEventListener('play', function() {
                 playBtn.textContent = '⏸ PAUSE';
+                videoProgress.style.opacity = '0';
             });
             
             mainVideo.addEventListener('pause', function() {
                 playBtn.textContent = '▶ PLAY';
             });
             
-            mainVideo.addEventListener('click', function() {
+            mainVideo.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
                 if (mainVideo.paused) {
                     mainVideo.play();
                 } else {
@@ -318,25 +509,84 @@
                 }
             });
             
-            document.addEventListener('keydown', function(e) {
-                switch(e.code) {
-                    case 'Space':
-                        e.preventDefault();
-                        if (mainVideo.paused) {
-                            mainVideo.play();
-                        } else {
-                            mainVideo.pause();
-                        }
-                        break;
-                    case 'KeyM':
-                        mainVideo.muted = !mainVideo.muted;
-                        muteBtn.textContent = mainVideo.muted ? '🔇 MUTED' : '🔊 UNMUTE';
-                        break;
+            mainVideo.addEventListener('timeupdate', function() {
+                if (mainVideo.duration > 0) {
+                    const percent = (mainVideo.currentTime / mainVideo.duration) * 100;
+                    videoProgressFill.style.width = `${percent}%`;
                 }
             });
             
+            videoProgress.addEventListener('click', function(e) {
+                if (mainVideo.duration > 0) {
+                    const rect = videoProgress.getBoundingClientRect();
+                    const pos = (e.clientX - rect.left) / rect.width;
+                    mainVideo.currentTime = pos * mainVideo.duration;
+                }
+            });
+            
+            document.addEventListener('keydown', function(e) {
+                if (userStarted) {
+                    switch(e.code) {
+                        case 'Space':
+                            e.preventDefault();
+                            if (mainVideo.paused) {
+                                mainVideo.play();
+                            } else {
+                                mainVideo.pause();
+                            }
+                            break;
+                        case 'KeyM':
+                            mainVideo.muted = !mainVideo.muted;
+                            muteBtn.textContent = mainVideo.muted ? '🔇 MUTED' : '🔊 UNMUTE';
+                            break;
+                        case 'KeyF':
+                            fullscreenBtn.click();
+                            break;
+                        case 'ArrowLeft':
+                            e.preventDefault();
+                            mainVideo.currentTime = Math.max(0, mainVideo.currentTime - 5);
+                            break;
+                        case 'ArrowRight':
+                            e.preventDefault();
+                            mainVideo.currentTime = Math.min(mainVideo.duration, mainVideo.currentTime + 5);
+                            break;
+                    }
+                }
+            });
+            
+            muteBtn.textContent = mainVideo.muted ? '🔇 MUTED' : '🔊 UNMUTE';
+            
             mainVideo.addEventListener('loadeddata', function() {
                 bufferFill.style.width = '100%';
+            });
+            
+            let mouseTimer;
+            document.addEventListener('mousemove', function() {
+                if (userStarted) {
+                    videoControls.style.opacity = '1';
+                    videoProgress.style.opacity = '1';
+                    clearTimeout(mouseTimer);
+                    mouseTimer = setTimeout(() => {
+                        if (!mainVideo.paused) {
+                            videoControls.style.opacity = '0';
+                            videoProgress.style.opacity = '0';
+                        }
+                    }, 2000);
+                }
+            });
+            
+            videoContainer.addEventListener('mouseenter', function() {
+                if (userStarted) {
+                    videoControls.style.opacity = '1';
+                    videoProgress.style.opacity = '1';
+                }
+            });
+            
+            videoContainer.addEventListener('mouseleave', function() {
+                if (userStarted && !mainVideo.paused) {
+                    videoControls.style.opacity = '0';
+                    videoProgress.style.opacity = '0';
+                }
             });
         });
     </script>
