@@ -10,14 +10,20 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
 
         body {
             background-color: #000000;
             color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             min-height: 100vh;
             overflow: hidden;
+            cursor: none;
         }
 
         .loading-container {
@@ -27,7 +33,7 @@
             transform: translate(-50%, -50%);
             text-align: center;
             z-index: 1000;
-            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
         }
 
         .loading-container.hidden {
@@ -37,30 +43,38 @@
         }
 
         .loading-gif {
-            width: 140px;
-            height: 140px;
+            width: 160px;
+            height: 160px;
             object-fit: contain;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.1));
-            animation: gentlePulse 3s ease-in-out infinite;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.15));
+            animation: gentlePulse 2.5s ease-in-out infinite;
         }
 
         @keyframes gentlePulse {
-            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.1)); }
-            50% { transform: scale(1.05); filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.15)); }
+            0%, 100% { 
+                transform: scale(1); 
+                filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.1));
+            }
+            50% { 
+                transform: scale(1.08); 
+                filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.2));
+            }
         }
 
         .loading-text {
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             font-weight: 300;
-            letter-spacing: 3px;
+            letter-spacing: 4px;
             opacity: 0.9;
             animation: fadeInOut 2s ease-in-out infinite;
+            font-family: monospace;
+            text-transform: uppercase;
         }
 
         @keyframes fadeInOut {
-            0%, 100% { opacity: 0.7; }
+            0%, 100% { opacity: 0.6; }
             50% { opacity: 1; }
         }
 
@@ -71,7 +85,7 @@
             width: 100%;
             height: 100%;
             opacity: 0;
-            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 900;
         }
 
@@ -82,127 +96,102 @@
         .main-video {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: cover;
             background-color: #000;
+            pointer-events: none;
         }
 
-        .buffer-indicator {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 200px;
-            height: 3px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 2px;
-            overflow: hidden;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: 950;
+        video::-webkit-media-controls {
+            display: none !important;
         }
-
-        .buffer-indicator.visible {
-            opacity: 1;
+        
+        video::-webkit-media-controls-enclosure {
+            display: none !important;
         }
-
-        .buffer-fill {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 0%;
-            background: #ffffff;
-            transition: width 0.2s ease;
+        
+        video::-webkit-media-controls-panel {
+            display: none !important;
+        }
+        
+        video::-webkit-media-controls-play-button {
+            display: none !important;
+        }
+        
+        video::-webkit-media-controls-timeline {
+            display: none !important;
+        }
+        
+        video::-webkit-media-controls-current-time-display {
+            display: none !important;
+        }
+        
+        video::-webkit-media-controls-time-remaining-display {
+            display: none !important;
+        }
+        
+        video::-webkit-media-controls-timeline-container {
+            display: none !important;
+        }
+        
+        video::-webkit-media-controls-volume-slider-container {
+            display: none !important;
+        }
+        
+        video::-webkit-media-controls-volume-slider {
+            display: none !important;
+        }
+        
+        video::-webkit-media-controls-mute-button {
+            display: none !important;
+        }
+        
+        video::-webkit-media-controls-toggle-closed-captions-button {
+            display: none !important;
+        }
+        
+        video::-webkit-media-controls-fullscreen-button {
+            display: none !important;
         }
 
         @media (max-width: 768px) {
             .loading-gif {
-                width: 120px;
-                height: 120px;
+                width: 130px;
+                height: 130px;
             }
             
             .loading-text {
-                font-size: 1.1rem;
-                letter-spacing: 2px;
-            }
-            
-            .buffer-indicator {
-                width: 150px;
-                bottom: 20px;
+                font-size: 1.2rem;
+                letter-spacing: 3px;
             }
         }
 
         @media (max-width: 480px) {
             .loading-gif {
-                width: 100px;
-                height: 100px;
+                width: 110px;
+                height: 110px;
             }
             
             .loading-text {
                 font-size: 1rem;
-                letter-spacing: 1px;
-            }
-            
-            .buffer-indicator {
-                width: 120px;
-                bottom: 15px;
+                letter-spacing: 2px;
             }
         }
 
-        /* Video controls that appear on hover */
-        .video-controls {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 15px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: 950;
-        }
-
-        .video-container:hover .video-controls {
-            opacity: 1;
-        }
-
-        .control-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-
-        .control-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
+        * {
+            cursor: none !important;
         }
     </style>
 </head>
 <body>
     <div class="loading-container" id="loadingContainer">
         <img src="images/gif/rem-rezero.gif" alt="Loading" class="loading-gif">
-        <div class="loading-text">LOADING</div>
-    </div>
-
-    <div class="buffer-indicator" id="bufferIndicator">
-        <div class="buffer-fill" id="bufferFill"></div>
+        <div class="loading-text">PREPARING EXPERIENCE</div>
     </div>
 
     <div class="video-container" id="videoContainer">
-        <video class="main-video" id="mainVideo" preload="auto" playsinline webkit-playsinline muted>
+        <video class="main-video" id="mainVideo" preload="auto" playsinline webkit-playsinline autoplay muted loop>
             <source src="video/never_gonna_give_you_up.mp4" type="video/mp4">
-            Your browser does not support HTML5 video.
         </video>
-        
-        <div class="video-controls">
-            <button class="control-btn" id="playBtn">▶ PLAY</button>
-            <button class="control-btn" id="muteBtn">🔊 UNMUTE</button>
-        </div>
     </div>
 
     <script>
@@ -210,134 +199,52 @@
             const loadingContainer = document.getElementById('loadingContainer');
             const videoContainer = document.getElementById('videoContainer');
             const mainVideo = document.getElementById('mainVideo');
-            const bufferIndicator = document.getElementById('bufferIndicator');
-            const bufferFill = document.getElementById('bufferFill');
-            const playBtn = document.getElementById('playBtn');
-            const muteBtn = document.getElementById('muteBtn');
             
             let videoReady = false;
-            let canAutoPlay = false;
             
-            mainVideo.preload = 'auto';
-            mainVideo.load();
+            mainVideo.controls = false;
             
-            bufferIndicator.classList.add('visible');
-            
-            mainVideo.addEventListener('progress', function() {
-                if (mainVideo.buffered.length > 0) {
-                    const bufferedEnd = mainVideo.buffered.end(mainVideo.buffered.length - 1);
-                    const duration = mainVideo.duration;
-                    
-                    if (duration > 0) {
-                        const percentBuffered = (bufferedEnd / duration) * 100;
-                        bufferFill.style.width = `${percentBuffered}%`;
-                        
-                        if (!videoReady && (percentBuffered >= 10 || bufferedEnd >= 5)) {
-                            prepareVideoPlayback();
-                        }
-                    }
-                }
-            });
-            
-            function prepareVideoPlayback() {
-                if (videoReady) return;
-                
-                videoReady = true;
-                
-                setTimeout(() => {
-                    loadingContainer.classList.add('hidden');
-                    
-                    setTimeout(() => {
-                        videoContainer.classList.add('visible');
-                        
-                        const playPromise = mainVideo.play();
-                        
-                        if (playPromise !== undefined) {
-                            playPromise.then(() => {
-                                canAutoPlay = true;
-                                bufferIndicator.classList.remove('visible');
-                                
-                                if (!mainVideo.muted) {
-                                    mainVideo.muted = false;
-                                }
-                            }).catch(error => {
-                                console.log('Autoplay prevented, waiting for user interaction');
-                                canAutoPlay = false;
-                                mainVideo.muted = false;
-                            });
-                        }
-                    }, 300);
-                }, 500);
-            }
-            
-            mainVideo.addEventListener('error', function() {
-                console.error('Video loading error:', mainVideo.error);
-                loadingContainer.querySelector('.loading-text').textContent = 'LOADING ERROR';
-            });
-            
-            mainVideo.addEventListener('canplaythrough', function() {
-                if (!videoReady) {
-                    prepareVideoPlayback();
-                }
-            });
-            
-            setTimeout(() => {
-                if (!videoReady && mainVideo.readyState >= 3) {
-                    prepareVideoPlayback();
-                }
-            }, 3000);
-            
-            playBtn.addEventListener('click', function() {
-                if (mainVideo.paused) {
-                    mainVideo.play();
-                    playBtn.textContent = '⏸ PAUSE';
-                } else {
-                    mainVideo.pause();
-                    playBtn.textContent = '▶ PLAY';
-                }
-            });
-            
-            muteBtn.addEventListener('click', function() {
-                mainVideo.muted = !mainVideo.muted;
-                muteBtn.textContent = mainVideo.muted ? '🔇 MUTED' : '🔊 UNMUTE';
-            });
-            
-            mainVideo.addEventListener('play', function() {
-                playBtn.textContent = '⏸ PAUSE';
-            });
-            
-            mainVideo.addEventListener('pause', function() {
-                playBtn.textContent = '▶ PLAY';
-            });
-            
-            mainVideo.addEventListener('click', function() {
-                if (mainVideo.paused) {
-                    mainVideo.play();
-                } else {
-                    mainVideo.pause();
-                }
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                return false;
             });
             
             document.addEventListener('keydown', function(e) {
-                switch(e.code) {
-                    case 'Space':
-                        e.preventDefault();
-                        if (mainVideo.paused) {
-                            mainVideo.play();
-                        } else {
-                            mainVideo.pause();
-                        }
-                        break;
-                    case 'KeyM':
-                        mainVideo.muted = !mainVideo.muted;
-                        muteBtn.textContent = mainVideo.muted ? '🔇 MUTED' : '🔊 UNMUTE';
-                        break;
-                }
+                e.preventDefault();
+                return false;
             });
             
             mainVideo.addEventListener('loadeddata', function() {
-                bufferFill.style.width = '100%';
+                setTimeout(function() {
+                    loadingContainer.classList.add('hidden');
+                    videoContainer.classList.add('visible');
+                    
+                    mainVideo.muted = false;
+                    mainVideo.volume = 1.0;
+                    
+                    const playPromise = mainVideo.play();
+                    
+                    if (playPromise !== undefined) {
+                        playPromise.catch(function() {
+                            mainVideo.muted = true;
+                            mainVideo.play().then(function() {
+                                mainVideo.muted = false;
+                            });
+                        });
+                    }
+                }, 800);
             });
+            
+            mainVideo.addEventListener('error', function() {
+                loadingContainer.querySelector('.loading-text').textContent = 'ERROR LOADING';
+            });
+            
+            setTimeout(function() {
+                if (!videoReady) {
+                    loadingContainer.classList.add('hidden');
+                    videoContainer.classList.add('visible');
+                }
+            }, 5000);
         });
     </script>
 </body>
