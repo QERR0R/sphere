@@ -189,8 +189,8 @@
     </div>
 
     <div class="video-container" id="videoContainer">
-        <video class="main-video" id="mainVideo" preload="auto" playsinline webkit-playsinline autoplay muted loop>
-            <source src="video/never_gonna_give_you_up.mp4" type="video/mp4">
+        <video class="main-video" id="mainVideo" preload="auto" playsinline webkit-playsinline autoplay loop>
+            <source src="videos/never_gonna_give_you_up.mp4" type="video/mp4">
         </video>
     </div>
 
@@ -200,9 +200,8 @@
             const videoContainer = document.getElementById('videoContainer');
             const mainVideo = document.getElementById('mainVideo');
             
-            let videoReady = false;
-            
-            mainVideo.controls = false;
+            mainVideo.volume = 1.0;
+            mainVideo.muted = false;
             
             document.addEventListener('contextmenu', function(e) {
                 e.preventDefault();
@@ -210,41 +209,62 @@
             });
             
             document.addEventListener('keydown', function(e) {
-                e.preventDefault();
+                if (e.key === 'F12' || e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
+                    e.preventDefault();
+                }
                 return false;
             });
             
-            mainVideo.addEventListener('loadeddata', function() {
-                setTimeout(function() {
-                    loadingContainer.classList.add('hidden');
-                    videoContainer.classList.add('visible');
-                    
-                    mainVideo.muted = false;
-                    mainVideo.volume = 1.0;
-                    
-                    const playPromise = mainVideo.play();
-                    
-                    if (playPromise !== undefined) {
-                        playPromise.catch(function() {
-                            mainVideo.muted = true;
-                            mainVideo.play().then(function() {
-                                mainVideo.muted = false;
-                            });
-                        });
-                    }
-                }, 800);
+            let videoStarted = false;
+            
+            function startVideoExperience() {
+                if (videoStarted) return;
+                videoStarted = true;
+                
+                mainVideo.play().then(function() {
+                    setTimeout(function() {
+                        loadingContainer.classList.add('hidden');
+                        videoContainer.classList.add('visible');
+                    }, 300);
+                }).catch(function(error) {
+                    mainVideo.muted = true;
+                    mainVideo.play().then(function() {
+                        mainVideo.muted = false;
+                        setTimeout(function() {
+                            loadingContainer.classList.add('hidden');
+                            videoContainer.classList.add('visible');
+                        }, 300);
+                    });
+                });
+            }
+            
+            mainVideo.addEventListener('canplaythrough', function() {
+                startVideoExperience();
             });
             
-            mainVideo.addEventListener('error', function() {
-                loadingContainer.querySelector('.loading-text').textContent = 'ERROR LOADING';
+            mainVideo.addEventListener('loadeddata', function() {
+                if (!videoStarted) {
+                    startVideoExperience();
+                }
             });
             
             setTimeout(function() {
-                if (!videoReady) {
-                    loadingContainer.classList.add('hidden');
-                    videoContainer.classList.add('visible');
+                if (!videoStarted) {
+                    startVideoExperience();
                 }
-            }, 5000);
+            }, 1000);
+            
+            document.body.addEventListener('click', function() {
+                if (!videoStarted) {
+                    startVideoExperience();
+                }
+            });
+            
+            document.body.addEventListener('touchstart', function() {
+                if (!videoStarted) {
+                    startVideoExperience();
+                }
+            });
         });
     </script>
 </body>
